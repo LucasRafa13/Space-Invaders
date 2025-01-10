@@ -1,4 +1,4 @@
-import Invader from './classes/Invader.js'
+import Grid from './classes/Grid.js'
 import Player from './classes/Player.js'
 
 const canvas = document.querySelector('canvas')
@@ -10,9 +10,10 @@ canvas.height = innerHeight
 ctx.imageSmoothingEnabled = false
 
 const player = new Player(canvas.width, canvas.height)
-const playerProjectiles = []
+const grid = new Grid(3, 6)
 
-const invader = new Invader({ x: 150, y: 100 }, 5)
+const playerProjectiles = []
+const invadersProjectiles = []
 
 const keys = {
   left: false,
@@ -38,13 +39,27 @@ const clearProjectiles = () => {
   })
 }
 
+const checkShootInvaders = () => {
+  grid.invaders.forEach((invader, invaderIndex) => {
+    playerProjectiles.some((projectile, projectileIndex) => {
+      if (invader.hit(projectile)) {
+        grid.invaders.splice(invaderIndex, 1)
+        playerProjectiles.splice(projectileIndex, 1)
+      }
+    })
+  })
+}
+
 const gameLoop = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  invader.draw(ctx)
-
   drawProjectiles()
   clearProjectiles()
+
+  checkShootInvaders()
+
+  grid.draw(ctx)
+  grid.update()
 
   ctx.save()
 
@@ -103,5 +118,13 @@ addEventListener('keyup', (event) => {
     keys.shoot.released = true
   }
 })
+
+setInterval(() => {
+  const invader = grid.getRandomInvader()
+
+  if (invader) {
+    invader.shoot(invadersProjectiles)
+  }
+}, 1000)
 
 gameLoop()
