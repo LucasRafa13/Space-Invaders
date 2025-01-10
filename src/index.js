@@ -1,3 +1,4 @@
+import Invader from './classes/Invader.js'
 import Player from './classes/Player.js'
 
 const canvas = document.querySelector('canvas')
@@ -10,6 +11,8 @@ ctx.imageSmoothingEnabled = false
 
 const player = new Player(canvas.width, canvas.height)
 const playerProjectiles = []
+
+const invader = new Invader({ x: 150, y: 100 }, 5)
 
 const keys = {
   left: false,
@@ -27,10 +30,21 @@ const drawProjectiles = () => {
   })
 }
 
+const clearProjectiles = () => {
+  playerProjectiles.forEach((projectile, i) => {
+    if (projectile.position.y <= 0) {
+      playerProjectiles.splice(i, 1)
+    }
+  })
+}
+
 const gameLoop = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+  invader.draw(ctx)
+
   drawProjectiles()
+  clearProjectiles()
 
   ctx.save()
 
